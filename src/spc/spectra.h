@@ -1,6 +1,6 @@
 // Main class is spectrum class for spectrum that consitst of one MS1 Peak
 // and some amount of MS2 Peaks. Spectrum has title
-// may has sequence.  
+// may has sequence.
 
 #ifndef SPECTRA_H
 #define SPECTRA_H
@@ -37,14 +37,14 @@ bool operator< (ADelta a, ADelta b);
 
 // function check if delta of masses in vector with deltas
 std::vector<ADelta> inRange(double m1, double m2,
-  std::vector<ADelta> deltas, double value, bool isPpm);
+  const std::vector<ADelta>& deltas, double value, bool isPpm);
 
 // calc max delta for vector with ADelta
 double calc_max_delta(const std::vector<ADelta>& vdelta);
 
 // function to check consitense element in vector
 template< typename T>
-bool inV(T x, std::vector<T> v);
+bool inV(T x, const std::vector<T>& v);
 
 // Class for spectrum objects
 // contains one MS1Peak object and std::vector of MS2Peak
@@ -60,38 +60,38 @@ private:
 
 public:
   Spectrum();
-  Spectrum(MS1Peak _ms1);
+  Spectrum(const MS1Peak& _ms1);
 
   // add ms2 peak to std::vector<MS2Peak> ms2
-  void addMS2Peak(MS2Peak ms2p);
+  void addMS2Peak(const MS2Peak& ms2p);
 
-  // get all ms2 peaks as Range Collection object 
+  // get all ms2 peaks as Range Collection object
   RangeC getMS2range(bool query) const;
-  RangeC getMS2range(bool query, std::vector<char> charges);
+  RangeC getMS2range(bool query, const std::vector<char>& charges);
 
   // set get block
   MS1Peak get_ms1();
   MS1Peak* get_ms1p();
-  std::vector<MS2Peak> get_ms2();
+  std::vector<MS2Peak> get_ms2() const;
   std::vector<MS2Peak>* get_ms2p();
   void set_title(std::string _title);
   void set_seq(std::string _seq);
   void set_protein(std::string _protein);
   void set_weight(int _weight);
-  std::string get_title();
-  std::string get_seq();
-  int get_lseq();
-  double get_theor_mass(std::map<char, double> masses);
-  void recalc_mass(std::map<char, double> masses);
+  std::string get_title() const;
+  std::string get_seq() const;
+  int get_lseq() const;
+  double get_theor_mass(const std::map<char, double>& masses) const;
+  void recalc_mass(const std::map<char, double>& masses);
   // number of ms2 peaks
-  int ms2length();
-  int get_weight();
+  int ms2length() const;
+  int get_weight() const;
   // return number of top (precursor mz / pdiv) ms2 peaks by intensity
   int top_mz_peaks(double pdiv);
   // return number of top (precursor m / pdiv) ms2 peaks by intensity
   int top_m_peaks(double pdiv);
   // number of annotated peaks in spectra
-  int get_by_size();
+  int get_by_size() const;
   // return top (precursor mz / pdiv) ms2 peaks by intensity
   std::vector<MS2Peak> get_filter_ms2(double pdiv);
   // retain only top n peaks
@@ -103,17 +103,17 @@ public:
   void inc_intenisies(double mint, char trAlg, double iConst);
   // normalize spectrum intensities in way that mean intensity of
   // spectrum equal mnI constant. if norm is false - then only
-  // transform intensities according selected algorithm 
+  // transform intensities according selected algorithm
   void normalize(bool norm, char trAlg, double iConst);
-  
+
   // return theoretical Spectrum for sequence
   // create all b/y/B/Y (B = b - NH3, Y = y - NH3, P = b - H2O, I = y - H2O) ions with charge = 1
   // and intensity = 0
-  Spectrum getTheorSpectrum(std::map<char, double> masses, bool addions);
-  
+  Spectrum getTheorSpectrum(const std::map<char, double>& masses, bool addions);
+
   // find aa in sequence
   std::vector<int> findAmiSeq(char ami) ;
-  
+
   // find availible delta position in seq for current ADelta
   // some explanation. we have delta, it may be multiple (AB -> CD)
   // and find all availible variants in sequence that may be realisied
@@ -128,22 +128,22 @@ public:
   // May be in future i will remove them and left only one.
 
   // common for all algorithms method to calculate deltas in each position
-  // in sequence calculate delta value for each position by array 
+  // in sequence calculate delta value for each position by array
   // with <pos, delta> std::pairs
   std::vector<double> deltaPos(std::vector< std::pair<int, double> > dpos);
   // levae only b/y ions and shift them (if ion in needed position)
   // erase other ions
-  void shiftBY(std::vector< std::pair<int, double> > dpos);
+  void shiftBY(const std::vector< std::pair<int, double> >& dpos);
   // remove all not annotated peaks
   void removeNA();
   // shift only b/y ions
-  void shift1(std::vector< std::pair<int, double> > dpos);
-  // shift only b/y ions at needed deltas 
+  void shift1(const std::vector< std::pair<int, double> >& dpos);
+  // shift only b/y ions at needed deltas
   // and other (not annotated) to summary delta
-  void shift2(std::vector< std::pair<int, double> > dpos);
-  // shift only b/y ions at needed deltas 
+  void shift2(const std::vector< std::pair<int, double> >& dpos);
+  // shift only b/y ions at needed deltas
   // other (not annotated) duplicate with summary delta
-  void shift3(std::vector< std::pair<int, double> > dpos);
+  void shift3(const std::vector< std::pair<int, double> >& dpos);
   // print spectrum
   void print();
 };
@@ -155,11 +155,11 @@ std::vector<Range> getMS1range(std::vector<Spectrum>* spv, bool query);
 // Subset from vector of Spectrum by sequences or titles
 // checking that value in vector of values
 // subset from vector<Spectrum> by titles vector
-std::vector<Spectrum> subsetTitleSpectra(std::vector<Spectrum>*spv, 
-  std::vector<std::string> titles, bool negate = false);
+std::vector<Spectrum> subsetTitleSpectra(std::vector<Spectrum>*spv,
+  const std::vector<std::string>& titles, bool negate = false);
 // subset from vector<Spectrum> by sequences vector
-std::vector<Spectrum> subsetSeqSpectra(std::vector<Spectrum>*spv, 
-  std::vector<std::string> seqs, bool negate = false);
+std::vector<Spectrum> subsetSeqSpectra(std::vector<Spectrum>*spv,
+  const std::vector<std::string>& seqs, bool negate = false);
 
 // Spectral library class
 // Spectra library consists of spectra for unique sequences. While creation
@@ -168,10 +168,10 @@ class SpectraLib {
 private:
   std::map<std::string, Spectrum> slb; // map of sequence -> spectra
 
-public: 
+public:
   SpectraLib();
   // add one spectrum to library
-  void add_spectrum(Spectrum sp, double delta);
+  void add_spectrum(const Spectrum& sp, double delta);
   // add several spectra to library from vector<Spectrum>
   void add_spectra(std::vector<Spectrum>* spv, double delta);
   // size of spectra library

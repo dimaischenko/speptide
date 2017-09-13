@@ -60,18 +60,18 @@ class MS2Peak : public MSPeak {
 private:
   char series; // ion series {b, y, B, Y, P, I ...}
   char number; // ion number {1, 2, 3, ...} in series
-  
+
 public:
-  MS2Peak(double _mz = 0, double _intensity = 0, int _charge = 1, 
+  MS2Peak(double _mz = 0, double _intensity = 0, int _charge = 1,
     bool _plus = true, char _series = 'n', char _number = 0);
   MS2Peak(const MS2Peak &ms2p);
 
   // set get block
-  char get_series();
+  char get_series() const;
   char get_number();
   void set_series(char _series);
   void set_number(char _number);
-  void set_intensity(double _intensity);  
+  void set_intensity(double _intensity);
   // set intensity and transform
   // several methods for intensity transformation
   // TODO(dima) some hash table for different algorithms and good names
@@ -88,14 +88,14 @@ bool operator< (MS2Peak a, MS2Peak b);
 // parent peak can produce several peaks with different charges
 // so these peaks have different ids but the same mid
 // bool query flag - indicates is it query or subject peak
-// we need it for intersection 
+// we need it for intersection
 class Range {
 private:
   // MSPeak object
   MSPeak mspeak;
-  // range id 
+  // range id
   int id;
-  // ms id (for one ms we can create several ranges with diff charges) 
+  // ms id (for one ms we can create several ranges with diff charges)
   int mid;
   // range type (query or not)
   // use when intersect two vector<Range> to distinguish ranges from
@@ -103,7 +103,7 @@ private:
   bool query;
 public:
   Range();
-  Range(MSPeak _mspeak, int _id, bool _query, int _mid); 
+  Range(MSPeak _mspeak, int _id, bool _query, int _mid);
 
   // get block
   MSPeak get_mspeak();

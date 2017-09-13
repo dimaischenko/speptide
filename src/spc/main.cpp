@@ -34,7 +34,7 @@ using namespace std;
 int main (int argc, char *argv[])
 {
   try {
-  
+
   // check input arguments and print help
   if(argc != 4) {
     cout << "  speptide version 0.92 by Dima Ischenko (ischenko.dmitry@gmail.com)" << endl;
@@ -58,7 +58,7 @@ int main (int argc, char *argv[])
   // set mgf filenames
   string mgf1F = (string)argv[1];
   string mgf2F = (string)argv[2];
-  
+
   // load ini file and set params
   dictionary* ini;
   ini = iniparser_load(argv[3]);
@@ -92,7 +92,7 @@ int main (int argc, char *argv[])
   double refdiv = iniparser_getdouble(ini, "sap:refdiv", 1);
   bool fIdent = iniparser_getboolean(ini, "sap:fident", true);
   bool fMod = iniparser_getboolean(ini, "sap:fmod", true);
-  
+
   // free ini
   iniparser_freedict(ini);
 
@@ -109,23 +109,23 @@ int main (int argc, char *argv[])
   // another (second) database with seq tab(annotation - true)
   vector<Spectrum> spv1 = msp.loadMGF(mgf1F, masses, byDelta, false, false);
   vector<Spectrum> spv2 = msp.loadMGF(mgf2F, masses, byDelta, true, addions);
-  
+
   // output double precision
   cout << setprecision(7);
-  
+
   // create calculator class
   Scoring score = Scoring();
 
   vector<Spectrum> spv1fin = vector<Spectrum>();
   vector<Spectrum> spv2fin = vector<Spectrum>();
 
-  // Alogrithm pipeline 
+  // Alogrithm pipeline
   if (fIdent) {
     // find identical
     ResultIdent nci = score.comp2spvAngle(spv1, spv2,
         i_erms1, i_isPpm, i_erDa, i_pdiv, i_ath05,
         i_norm, i_iConst, i_trAlg);
-    
+
     // subset not identical from experiment
     vector<Spectrum> spv1ni = subsetTitleSpectra(&spv1,
         nci.get_uniq_title1ang(i_ath), true);
@@ -137,7 +137,7 @@ int main (int argc, char *argv[])
       // subset identical from library for modifications search
       vector<Spectrum> spv2sb = subsetSeqSpectra(&spv2,
           nci.get_uniq_seq2());
-      
+
       // find modifications
       if (spv1ni.size() > 0 && spv2sb.size() > 0) {
         ResultSap ncmod = score.comp2spvAngleAap(spv1ni, spv2sb,
@@ -155,7 +155,7 @@ int main (int argc, char *argv[])
     spv1fin = spv1;
     spv2fin = spv2;
   }
-  
+
   // final sap search
   if (spv1fin.size() > 0 && spv2fin.size() > 0) {
     ResultSap ncfin = score.comp2spvAngleAap(spv1fin, spv2fin,

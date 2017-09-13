@@ -30,6 +30,7 @@ ADelta::ADelta() {
   ami2 = "";
   delta = 0;
 }
+
 ADelta::ADelta(std::string _ami1, std::string _ami2, double _delta) {
   // swap amies when delta is negative
   if (_delta >= 0) {
@@ -61,7 +62,7 @@ bool operator< (ADelta a, ADelta b) {
 
 // function check if delta of masses in vector with deltas
 std::vector<ADelta> inRange(double m1, double m2,
-  std::vector<ADelta> deltas, double value, bool isPpm) {
+  const std::vector<ADelta>& deltas, double value, bool isPpm) {
   double dt = std::abs(m2 - m1);
   std::vector<ADelta> rdeltas = std::vector<ADelta>(0); 
 
@@ -91,7 +92,7 @@ double calc_max_delta(const std::vector<ADelta>& vdelta) {
 
 // function to check consitense element in vector
 template< typename T >
-bool inV(T x, std::vector<T> v) {
+bool inV(T x, const std::vector<T>& v) {
   for (int i = 0; i < v.size(); i++) {
     if (x == v[i]) return true;
   }
@@ -110,7 +111,7 @@ Spectrum::Spectrum() {
   protein = "";
 }
 
-Spectrum::Spectrum(MS1Peak _ms1) {
+Spectrum::Spectrum(const MS1Peak& _ms1) {
   ms1 = MS1Peak(_ms1);
   ms2 = std::vector<MS2Peak>(0);
   seq = "";
@@ -120,7 +121,7 @@ Spectrum::Spectrum(MS1Peak _ms1) {
 }
 
 // add ms2 peak to std::vector<MS2Peak> ms2
-void Spectrum::addMS2Peak(MS2Peak ms2p) {
+void Spectrum::addMS2Peak(const MS2Peak& ms2p) {
   ms2.push_back(ms2p);
 }
 
@@ -135,8 +136,9 @@ RangeC Spectrum::getMS2range(bool query) const {
   }
   return rc;
 }
+
 // get all ms2 peaks with diff charges as range collection object 
-RangeC Spectrum::getMS2range(bool query, std::vector<char> charges) {
+RangeC Spectrum::getMS2range(bool query, const std::vector<char>& charges) {
   RangeC rc = RangeC();
   size_t chsize = charges.size();
   for (std::size_t i = 0; i < ms2.size(); i++) {
@@ -156,52 +158,66 @@ RangeC Spectrum::getMS2range(bool query, std::vector<char> charges) {
 MS1Peak Spectrum::get_ms1() {
   return ms1;
 }
+
 MS1Peak* Spectrum::get_ms1p() {
   return &ms1;
 }
-std::vector<MS2Peak> Spectrum::get_ms2() {
+
+std::vector<MS2Peak> Spectrum::get_ms2() const {
   return ms2;
 }
+
 std::vector<MS2Peak>* Spectrum::get_ms2p() {
   return &ms2;
 }
+
 void Spectrum::set_title(std::string _title) {
   title = _title;
 }
+
 void Spectrum::set_seq(std::string _seq) {
   seq = _seq;
 }
+
 void Spectrum::set_protein(std::string _protein) {
   protein = _protein;
 }
+
 void Spectrum::set_weight(int _weight) {
   weight = _weight;
 }
-std::string Spectrum::get_title() {
+
+std::string Spectrum::get_title() const {
   return title;
 }
-std::string Spectrum::get_seq() {
+
+std::string Spectrum::get_seq() const {
   return seq;
 }
-int Spectrum::get_lseq() {
+
+int Spectrum::get_lseq() const {
   return seq.size();
 }
-double Spectrum::get_theor_mass(std::map<char, double> masses) {
+
+double Spectrum::get_theor_mass(const std::map<char, double>& masses) const {
   if (seq.size() == 0) return 0;
   double M = 2 * mH + mO;
   for (std::size_t i = 0; i < seq.size(); i++) {
-    M += masses[seq[i]];
+    M += masses.at(seq[i]);
   }
   return M;
 }
-void Spectrum::recalc_mass(std::map<char, double> masses) {
+
+void Spectrum::recalc_mass(const std::map<char, double>& masses) {
   ms1.set_m(get_theor_mass(masses));
 }
+
 // number of ms2 peaks
-int Spectrum::ms2length() {
+int Spectrum::ms2length() const {
   return ms2.size();
 }
-int Spectrum::get_weight() {
+
+int Spectrum::get_weight() const {
   return weight;
 }
 // return number of top (precursor mz / pdiv) ms2 peaks by intensity
@@ -220,7 +236,7 @@ int Spectrum::top_m_peaks(double pdiv) {
 }
 
 // number of annotated peaks in spectra
-int Spectrum::get_by_size() {
+int Spectrum::get_by_size() const {
   int bysz = 0;
   for (std::size_t i = 0; i < ms2.size(); i++) {
     if(ms2[i].get_series() != 'n')
@@ -276,7 +292,7 @@ void Spectrum::normalize(bool norm, char trAlg, double iConst) {
 // return theoretical Spectrum for sequence
 // create all b/y/B/Y (B = b - NH3, Y = y - NH3, P = b - H2O, I = y - H2O) ions with charge = 1
 // and intensity = 0
-Spectrum Spectrum::getTheorSpectrum(std::map<char, double> masses, bool addions) {
+Spectrum Spectrum::getTheorSpectrum(const std::map<char, double>& masses, bool addions) {
   Spectrum theorsp = Spectrum();
   int pep_size = seq.size();
   double M = 2 * mH + mO;
@@ -292,7 +308,7 @@ Spectrum Spectrum::getTheorSpectrum(std::map<char, double> masses, bool addions)
   std::vector<char> PIami(pyarr, pyarr + sizeof(pyarr) / sizeof(pyarr[0]));
   // calc neutural peptide mass and B/Y P/I first last positions
   for (int i = 0; i < pep_size; i++) {
-    M += masses[seq[i]];
+    M += masses.at(seq[i]);
     if (inV(seq[i], BYami)) {
       if (BYf == pep_size) BYf = i;
       BYl = i;
@@ -305,7 +321,7 @@ Spectrum Spectrum::getTheorSpectrum(std::map<char, double> masses, bool addions)
 
   double m1 = 0;
   for (int i = 0; i < (pep_size - 1); i++) {
-    m1 += masses[seq[i]];
+    m1 += masses.at(seq[i]);
     // add b y ioins
     MS2Peak bion = MS2Peak(m1 + mH, 0, 1, true, 'b', (char)(i + 1));
     MS2Peak yion = MS2Peak(M - m1 + mH, 0, 1, true, 'y', (char)(pep_size - (i + 1)));
@@ -406,7 +422,7 @@ std::vector<double> Spectrum::deltaPos(std::vector< std::pair<int, double> > dpo
 
 // levae only b/y ions and shift them (if ion in needed position)
 // erase other ions
-void Spectrum::shiftBY(std::vector< std::pair<int, double> > dpos) {
+void Spectrum::shiftBY(const std::vector< std::pair<int, double> >& dpos) {
   // get deltas for each position
   std::vector<double> bdeltas = this->deltaPos(dpos);
   // summary delta
@@ -419,23 +435,6 @@ void Spectrum::shiftBY(std::vector< std::pair<int, double> > dpos) {
   const char ytype[] = {'y', 'Y', 'I'};
   std::vector<char> ytypev(ytype, ytype + sizeof(ytype) / sizeof(ytype[0]));
   
-  /*
-  // go through each ms2 peak and add new wih +DELTA mz value
-  for (sp2i = this->ms2.begin(); sp2i != this->ms2.end();) {
-    char cur_series = (*sp2i).get_series();
-    if (inV(cur_series,btypev) || inV(cur_series,ytypev)) { 
-      char cur_num = (*sp2i).get_number();
-      if (inV(cur_series,btypev)) {
-        (*sp2i).add_mz(-bdeltas[cur_num] / (*sp2i).get_charge());
-      } else {
-        (*sp2i).add_mz(-(sdelta - bdeltas[this->get_lseq() - cur_num]) / (*sp2i).get_charge());
-      }
-    ++sp2i;
-    } else {
-      this->ms2.erase(sp2i);
-    }
-  }
-  */
   // TODO(dima) remember that we erase not annotated early.
   for (sp2i = this->ms2.begin(); sp2i != this->ms2.end(); ++sp2i) {
     char cur_num = (*sp2i).get_number();
@@ -461,7 +460,7 @@ void Spectrum::removeNA() {
 }
 
 // shift only b/y ions
-void Spectrum::shift1(std::vector< std::pair<int, double> > dpos) {
+void Spectrum::shift1(const std::vector< std::pair<int, double> >& dpos) {
   // get deltas for each position
   std::vector<double> bdeltas = this->deltaPos(dpos);
   // summary delta
@@ -485,7 +484,7 @@ void Spectrum::shift1(std::vector< std::pair<int, double> > dpos) {
 
 // shift only b/y ions at needed deltas 
 // and other (not annotated) to summary delta
-void Spectrum::shift2(std::vector< std::pair<int, double> > dpos) {
+void Spectrum::shift2(const std::vector< std::pair<int, double> >& dpos) {
   // get deltas for each position
   std::vector<double> bdeltas = this->deltaPos(dpos);
   // summary delta
@@ -511,7 +510,7 @@ void Spectrum::shift2(std::vector< std::pair<int, double> > dpos) {
 
 // shift only b/y ions at needed deltas 
 // other (not annotated) duplicate with summary delta
-void Spectrum::shift3(std::vector< std::pair<int, double> > dpos) {
+void Spectrum::shift3(const std::vector< std::pair<int, double> >& dpos) {
   // get deltas for each position
   std::vector<double> bdeltas = this->deltaPos(dpos);
   // summary delta
@@ -573,7 +572,7 @@ std::vector<Range> getMS1range(std::vector<Spectrum>* spv, bool query) {
 // Subset from vector of Spectrum by sequences or titles
 // subset from vector<Spectrum> by titles vector
 std::vector<Spectrum> subsetTitleSpectra(std::vector<Spectrum>*spv, 
-  std::vector<std::string> titles, bool negate) {
+  const std::vector<std::string>& titles, bool negate) {
   std::vector<Spectrum> nSpv = std::vector<Spectrum>(0);
   
   for(std::size_t i = 0; i < spv->size(); i++) {
@@ -585,7 +584,7 @@ std::vector<Spectrum> subsetTitleSpectra(std::vector<Spectrum>*spv,
 }
 // subset from vector<Spectrum> by sequences vector
 std::vector<Spectrum> subsetSeqSpectra(std::vector<Spectrum>*spv, 
-  std::vector<std::string> seqs, bool negate) {
+  const std::vector<std::string>& seqs, bool negate) {
   std::vector<Spectrum> nSpv = std::vector<Spectrum>(0);
   for(std::size_t i = 0; i < spv->size(); i++) {
     if (negate ^ inV(spv->at(i).get_seq(), seqs)) {
@@ -603,7 +602,7 @@ SpectraLib::SpectraLib() {
 }
 
 // add one spectrum to library
-void SpectraLib::add_spectrum(Spectrum sp, double delta) {
+void SpectraLib::add_spectrum(const Spectrum& sp, double delta) {
   // find sequence of new spectra in spectra library
   std::map<std::string, Spectrum>::iterator oldsp = slb.find(sp.get_seq());
   // check for existande spectrum in lib with same sequence

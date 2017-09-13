@@ -9,7 +9,7 @@
 
 #include "ms1ms2.h"
 #include "spectra.h"
-#include "result.h" 
+#include "result.h"
 
 // structure for compspecBY function
 struct compdata {
@@ -38,12 +38,12 @@ double comp2speci (const RangeC& r1, const RangeC& r2, double delta, double pdiv
 // intersect them with referent MS2 peaks and calculate spectral angle
 // return structure with angle, amounts of intersected peaks
 compdata comp2spec (Spectrum sp1, Spectrum sp2, double delta, double pdiv,
-  std::vector< std::pair<int, double> > dpos);
+  const std::vector< std::pair<int, double> >& dpos);
 
 // function compare two spectra object my therir ms1 and ms2 data
 ResultIdent comp2spvAngle (std::vector<Spectrum> sp1v, std::vector<Spectrum> sp2v,
   double value, bool isPpm, double delta, double pdiv, double ath, bool norm,
-  double iConst, char trAlg); 
+  double iConst, char trAlg);
 
 
 // function compare two vector<Specta> object my their ms1 and ms2 data
@@ -55,7 +55,7 @@ ResultIdent comp2spvAngle (std::vector<Spectrum> sp1v, std::vector<Spectrum> sp2
 // substitution (with shifting referent peaks)
 ResultSap comp2spvAngleAap (std::vector<Spectrum> sp1v,
   std::vector<Spectrum> sp2v, double value, bool isPpm, double delta, double pdiv,
-  std::vector<ADelta> deltas, std::map<char, double> masses, double ath,
+  const std::vector<ADelta>& deltas, const std::map<char, double>& masses, double ath,
   bool norm, double iConst, char trAlg, double refdiv);
 };
 

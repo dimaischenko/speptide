@@ -52,10 +52,10 @@ private:
 public:
   ResultSap();
 
-  void add_result(std::string _title1, std::string _title2,
+  void add_result(const std::string& _title1, const std::string& _title2,
       double _m1, double _m2,
-      std::string _seq2, double _angle, std::string _ami1, std::string _ami2,
-      std::string _pos, int _qa, int _sa, int _o);
+      const std::string& _seq2, double _angle, const std::string& _ami1, const std::string& _ami2,
+      const std::string& _pos, int _qa, int _sa, int _o);
 
   void print();
 };

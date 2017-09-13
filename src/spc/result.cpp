@@ -74,10 +74,10 @@ ResultSap::ResultSap() : Result() {
 }
 
 // add new result line
-void ResultSap::add_result(std::string _title1, std::string _title2,
+void ResultSap::add_result(const std::string& _title1, const std::string& _title2,
     double _m1, double _m2, 
-    std::string _seq2, double _angle, std::string _ami1, std::string _ami2,
-    std::string _pos, int _qa, int _sa, int _o) {
+    const std::string& _seq2, double _angle, const std::string& _ami1, const std::string& _ami2,
+    const std::string& _pos, int _qa, int _sa, int _o) {
   this->title1.push_back(_title1);
   this->title2.push_back(_title2);
   this->m1.push_back(_m1);

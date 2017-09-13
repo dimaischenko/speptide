@@ -84,7 +84,7 @@ double Scoring::comp2speci (const RangeC& r1, const RangeC& r2, double delta, do
 // intersect them with referent MS2 peaks and calculate spectral angle
 // return structure with angle, amounts of intersected peaks
 compdata Scoring::comp2spec (Spectrum sp1, Spectrum sp2, double delta, double pdiv,
-  std::vector< std::pair<int, double> > dpos) {
+  const std::vector< std::pair<int, double> >& dpos) {
   double dist = 0;
   // subset top peaks in query
   //shit referent ions
@@ -141,13 +141,7 @@ compdata Scoring::comp2spec (Spectrum sp1, Spectrum sp2, double delta, double pd
   res.qa = r1.get_size();
   res.sa = r2.get_size();
   res.o = nc.op1.size();
-  /*
-  sort(nc.op1.begin(), nc.op1.end()); sort(nc.op2.begin(), nc.op2.end());
-  nc.op1.erase(unique(nc.op1.begin(), nc.op1.end()), nc.op1.end());
-  nc.op2.erase(unique(nc.op2.begin(), nc.op2.end()), nc.op2.end());
-  res.qo = nc.op1.size();
-  res.so = nc.op2.size();
-  */
+
   return res;
 }
 
@@ -218,7 +212,7 @@ ResultIdent Scoring::comp2spvAngle (std::vector<Spectrum> sp1v, std::vector<Spec
 // substitution (with shifting referent peaks)
 ResultSap Scoring::comp2spvAngleAap (std::vector<Spectrum> sp1v,
   std::vector<Spectrum> sp2v, double value, bool isPpm, double delta, double pdiv,
-  std::vector<ADelta> deltas, std::map<char, double> masses, double ath,
+  const std::vector<ADelta>& deltas, const std::map<char, double>& masses, double ath,
   bool norm, double iConst, char trAlg, double refdiv) {
   
   // get max delta
@@ -282,7 +276,7 @@ ResultSap Scoring::comp2spvAngleAap (std::vector<Spectrum> sp1v,
           for (std::size_t posi = 0; posi < pos.size(); posi++) {
             std::vector< std::pair<int, double> > dpos = std::vector< std::pair<int, double> >(0);
             for (std::size_t ai = 0; ai < pos[posi].size(); ai++) {
-              dpos.push_back(std::pair<int, double>(pos[posi][ai], masses[oldc[ai]] - masses[newc[ai]]));
+              dpos.push_back(std::pair<int, double>(pos[posi][ai], masses.at(oldc[ai]) - masses.at(newc[ai])));
             }
 
             compdata compd = comp2spec(sp1v.at(i1), sp2v.at(i2), delta, pdiv, dpos);

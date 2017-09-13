@@ -34,9 +34,12 @@ std::vector<std::string> split(const std::string &s, char delim) {
 // large and strange function to read and parse mgf file
 // and return vector<Spectrum> object
 // TODO(dima) we need universal proteomic data parser
-std::vector<Spectrum> MParser::loadMGF(std::string filename,
-  std::map<char, double> masses, double delta,
-  bool annot, bool addions) {
+std::vector<Spectrum> MParser::loadMGF(
+  const std::string& filename,
+  const std::map<char, double>& masses,
+  double delta,
+  bool annot,
+  bool addions) {
   
   std::vector<Spectrum> spv = std::vector<Spectrum>(0);
   int id = 0;
@@ -128,7 +131,7 @@ std::vector<Spectrum> MParser::loadMGF(std::string filename,
 }
 
 // load MS1 delta values from file to vector<ADelta> object
-std::vector<ADelta> MParser::loadDeltas(std::string filename) {
+std::vector<ADelta> MParser::loadDeltas(const std::string& filename) {
   std::vector<ADelta> ms1deltas = std::vector<ADelta>(0);
   // open file with deltas
   std::ifstream infile(filename.c_str());
@@ -223,7 +226,7 @@ std::vector<ADelta> MParser::defaultDeltas() {
 
 
 // load amino acid masses
-std::map<char, double> MParser::loadMasses(std::string filename) {
+std::map<char, double> MParser::loadMasses(const std::string& filename) {
   std::map<char, double> masses = std::map<char, double>();
   // open file with masses
   std::ifstream infile(filename.c_str());

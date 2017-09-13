@@ -100,7 +100,7 @@ MS2Peak::MS2Peak(const MS2Peak &ms2p) {
   series = ms2p.series;
   number = ms2p.number;
 }
-char MS2Peak::get_series() {
+char MS2Peak::get_series() const {
   return series;
 }
 char MS2Peak::get_number() {
